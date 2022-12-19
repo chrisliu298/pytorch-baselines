@@ -43,6 +43,8 @@ def main(cfg):
         seed_everything(cfg.seed)
     # Datamodule
     datamodule = MNISTDataModule(cfg)
+    datamodule.prepare_data()
+    datamodule.setup()
     # Model
     model = FCN(cfg)
     # Callbacks
