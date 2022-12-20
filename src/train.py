@@ -6,13 +6,16 @@ from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
-from dataset import MNISTDataModule
+from dataset import MNISTDataModule, FashionMNISTDataModule
 from model import FCN
 
 
 def parser_args():
     parser = argparse.ArgumentParser()
     # Dataset
+    parser.add_argument(
+        "--dataset", type=str, default="mnist", choices=["mnist", "fashionmnist"]
+    )
     parser.add_argument("--data_dir", type=str, default="data")
     # Model
     parser.add_argument("--layer_dims", type=str)
@@ -42,7 +45,10 @@ def main(cfg):
     if cfg.seed is not None:
         seed_everything(cfg.seed)
     # Datamodule
-    datamodule = MNISTDataModule(cfg)
+    if cfg.dataset == "mnist":
+        datamodule = MNISTDataModule(cfg)
+    elif cfg.dataset == "fashionmnist":
+        datamodule = FashionMNISTDataModule(cfg)
     datamodule.prepare_data()
     datamodule.setup()
     # Model

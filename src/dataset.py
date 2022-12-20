@@ -66,3 +66,32 @@ class MNISTDataModule(BaseDataModule):
         train_idx, val_idx = indices[:-10000], indices[-10000:]
         self.train_dataset = Subset(train_dataset, train_idx)
         self.val_dataset = Subset(train_dataset, val_idx)
+
+
+class FashionMNISTDataModule(BaseDataModule):
+    def __init__(self, cfg):
+        super().__init__(cfg)
+
+    def prepare_data(self):
+        FashionMNIST(self.cfg.data_dir, train=True, download=True)
+        FashionMNIST(self.cfg.data_dir, train=False, download=True)
+
+    def setup(self, stage=None):
+        # Load train and test datasets
+        x_transforms = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize((0.2860,), (0.3530,)),
+            ]
+        )
+        train_dataset = FashionMNIST(
+            self.cfg.data_dir, train=True, transform=x_transforms
+        )
+        self.test_dataset = FashionMNIST(
+            self.cfg.data_dir, train=False, transform=x_transforms
+        )
+        # Split train dataset into train and validation datasets
+        indices = torch.randperm(len(train_dataset)).tolist()
+        train_idx, val_idx = indices[:-10000], indices[-10000:]
+        self.train_dataset = Subset(train_dataset, train_idx)
+        self.val_dataset = Subset(train_dataset, val_idx)
